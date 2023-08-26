@@ -1,0 +1,6 @@
+djangorestframework
+markdown
+django-filter
+psycopg2
+pillow
+python-decouple
