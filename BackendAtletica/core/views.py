@@ -44,6 +44,4 @@ class AdministradorViewSet(viewsets.ModelViewSet):
 class CarrinhoViewSet(viewsets.ModelViewSet):
     queryset = Carrinho.objects.all()
     serializer_class = CarrinhoSerializer
-
-
-#TODO - Criar as views para as outras classes
+    #TODO - GET: Mudar para uma consulta que é feita pelo id do usuário logado
