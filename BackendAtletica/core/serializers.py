@@ -28,8 +28,8 @@ class AdiministradorSerializer(serializers.ModelSerializer):
         model = Administrador
         fields = ('nome', 'username', 'cpf', 'email', 'telefone', 'endereco', 'senha', 'matricula', 'diretoria')
 
-class CarrinhoSerializer(serializers.Serializer):
+class CarrinhoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carrinho
-        fields = ('produtos', 'total')
+        fields = ('produto', 'quantidade', 'valorTotal','idUsuario', 'data')
 #TODO - Criar os serializers para as outras classes        
