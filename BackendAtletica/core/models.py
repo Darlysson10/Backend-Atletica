@@ -28,6 +28,8 @@ class Venda(models.Model):
     def __str__(self):
         return self.produtos
 
+#classe carrinho, não precisa de persistência de dados, será armazenado na sessão
+
 class Administrador(models.Model):
     nome = models.CharField(max_length=100)
     username = models.CharField(max_length=100)
@@ -63,3 +65,7 @@ class Eventos(models.Model):
 class BancoEspera (models.Model):
     idUsuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
     data = models.DateTimeField(auto_now_add=True)
+
+class Carrinho (models.Model):
+    produtos = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
