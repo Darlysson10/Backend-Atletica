@@ -11,6 +11,7 @@ class MinhaPermissao(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated
 
+#criar uma função post de onde se cria um serializer e esse serializer é jogado numa função de tratamento dos dados recebidos
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
     serializer_class = ProdutoSerializer
