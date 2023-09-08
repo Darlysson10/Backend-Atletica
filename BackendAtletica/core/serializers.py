@@ -6,30 +6,41 @@ from .models import Produto, Venda, Usuario, Eventos, Administrador, Carrinho
 class ProdutoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Produto
-        fields = ('nome', 'preco', 'descricao', 'qtdEstoqueInicial', 'qtdVendidaTotal', 'qtdSaldo', 'categoria')
+        fields = ('__all__')
 
 class VendaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Venda
-        fields = ('produto', 'idVenda', 'valor', 'dataVenda', 'idVendedor', 'idComprador', 'metodoPagamento', 'qtdVendido')
+        fields = ('__all__')
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ('nome', 'username', 'cpf', 'email', 'telefone', 'endereco', 'senha', 'matricula')
+        fields = ('__all__')
 
 class EventosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Eventos
-        fields = ('nome', 'descricao', 'data', 'local')
+        fields = ('__all__')
 
 class AdiministradorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Administrador
-        fields = ('nome', 'username', 'cpf', 'email', 'telefone', 'endereco', 'senha', 'matricula', 'diretoria')
+        fields = ('__all__')
+
+class AdministradorListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Administrador
+        fields = ('nome', 'diretoria')
+
+class AdministradorAsAdminListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Administrador
+        fields = ('nome', 'username', 'cpf', 'email', 'telefone', 'endereco', 'matricula', 'diretoria')
 
 class CarrinhoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carrinho
-        fields = ('produto', 'quantidade', 'valorTotal','idUsuario', 'data')
+        fields = ('__all__')
+        
 #TODO - Criar os serializers para as outras classes        
