@@ -1,7 +1,7 @@
 # Backend Atletica
 ## Árvore de diretórios
 ```bash
-├──  BackendAtletica (pasta do principal do projeto)
+├──  BackendAtletica (pasta principal do projeto)
 │    ├── BackendAtletica
 │    │   ├── asgi.py
 │    │   ├── __init__.py
