@@ -19,6 +19,7 @@ class IsGuest(permissions.BasePermission):
             return True
         return  not request.user
 
+#criar uma função post de onde se cria um serializer e esse serializer é jogado numa função de tratamento dos dados recebidos
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
     serializer_class = serializers.ProdutoSerializer
