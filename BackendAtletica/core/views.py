@@ -120,13 +120,17 @@ class CandidatoViewSet(viewsets.ModelViewSet):
     
     def create(self, request):
         serializer = serializers.CandidatoSerializer(data=request.data)
+        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
     def list(self, request):
-        candidato = Candidato.objects.all()
-        serializer = serializers.CandidatoSerializer(candidato, many=True)
-        return Response(serializer.data)
+        if request.user.is_staff:
+            candidato = Candidato.objects.all()
+            serializer = serializers.CandidatoSerializer(candidato, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
 #TODO - GET: Mudar para uma consulta que é feita pelo id do usuário logado
