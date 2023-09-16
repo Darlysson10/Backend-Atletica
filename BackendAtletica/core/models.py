@@ -48,9 +48,7 @@ class Administrador(models.Model):
 class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
     nome = models.CharField(max_length=100)
-    #username = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11)
-    #email = models.CharField(max_length=100)
     telefone = models.CharField(max_length=11)
     endereco = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
@@ -69,12 +67,20 @@ class Eventos(models.Model):
         return self.nome
 
 
-class BancoEspera (models.Model):
-    idUsuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+class Candidato (models.Model):
+    
+    email = models.EmailField(unique=True)
+    nome = models.CharField(max_length=100)
+    cpf = models.CharField(max_length=11)
+    telefone = models.CharField(max_length=11)
+    endereco = models.CharField(max_length=100)
+    matricula = models.CharField(max_length=100)
+    curso = models.CharField(max_length=100)
+    periodo = models.CharField(max_length=100)
     data = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.idUsuario
+        return self.nome
 
 class Carrinho (models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)

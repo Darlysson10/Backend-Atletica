@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from core import views
-from core.views import ProdutoViewSet, VendaViewSet, EventosViewSet, CarrinhoViewSet, AdministradorViewSet
+from core.views import ProdutoViewSet, VendaViewSet, EventosViewSet, CarrinhoViewSet, AdministradorViewSet, CandidatoViewSet
 from rest_framework import routers
 
 
@@ -28,6 +28,9 @@ router.register(r'vendas', views.VendaViewSet)
 router.register(r'eventos', views.EventosViewSet)
 router.register(r'administradores', views.AdministradorViewSet)
 router.register(r'carrinho', views.CarrinhoViewSet)
+router.register(r'bancoespera', views.CandidatoViewSet) 
+router.register(r'inscricao', views.CandidatoViewSet)
+
 
 #TODO - Registrar as rotas para as outras classes
 

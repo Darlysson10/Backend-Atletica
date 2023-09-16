@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Produto, Venda, Usuario, Eventos, Administrador, Carrinho
+from .models import Produto, Venda, Usuario, Eventos, Administrador, Carrinho, Candidato
 # Serializers define the API representation.
 class ProdutoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -58,5 +58,12 @@ class CarrinhoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carrinho
         fields = ('__all__')
-        
+
+
+
+class CandidatoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Candidato
+        fields = ('__all__')
+
 #TODO - Criar os serializers para as outras classes        
