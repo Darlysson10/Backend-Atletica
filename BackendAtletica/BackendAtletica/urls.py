@@ -18,14 +18,13 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from core import views
-from core.views import ProdutoViewSet, VendaViewSet, UsuarioViewSet, EventosViewSet, CarrinhoViewSet, AdministradorViewSet
+from core.views import ProdutoViewSet, VendaViewSet, EventosViewSet, CarrinhoViewSet, AdministradorViewSet
 from rest_framework import routers
 
 
 router = routers.DefaultRouter()
 router.register(r'produtos', ProdutoViewSet)
 router.register(r'vendas', views.VendaViewSet)
-router.register(r'usuarios', views.UsuarioViewSet)
 router.register(r'eventos', views.EventosViewSet)
 router.register(r'administradores', views.AdministradorViewSet)
 router.register(r'carrinho', views.CarrinhoViewSet)
@@ -35,6 +34,7 @@ router.register(r'carrinho', views.CarrinhoViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('', include('core.urls')),
 ]
 

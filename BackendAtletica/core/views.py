@@ -1,11 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Produto, Venda, Usuario, Eventos, Administrador, Carrinho
 from . import serializers
-from django.contrib.auth.decorators import user_passes_test
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.permissions import IsAuthenticated
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -35,20 +39,37 @@ class VendaViewSet(viewsets.ModelViewSet):
     queryset = Venda.objects.all()
     serializer_class = serializers.VendaSerializer
 
-class UsuarioViewSet(viewsets.ModelViewSet):
-    queryset = Usuario.objects.all()
-    serializer_class = serializers.UsuarioSerializer
-    permission_classes = [IsGuest]
-
-    def create(self, request):
+@api_view(['POST'])
+def register(request):
+    if request.method == 'POST':
         serializer = serializers.UsuarioSerializer(data=request.data)
         if serializer.is_valid():
-            if len(self.queryset.filter(username=serializer.validated_data['username'])) == 0:
-                serializer.save()
-                return Response(serializer.data)
-            else:
-                return Response({'mensagem': 'Usuário já cadastrado'})
-        return Response(serializer.errors)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def login(request):
+    if request.method == 'POST':
+        username = request.data['username']
+        password = request.data['password']
+        user = authenticate(username=username,password=password)
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Usuário ou senha inválidos'}, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    if request.method == 'POST':
+        try:
+            request.user.auth_token.delete()
+            return Response({'mensagem': 'Logout realizado com sucesso'}, status=status.HTTP_200_OK)
+        except (AttributeError, ObjectDoesNotExist):
+            return Response({'error': 'Não foi possível realizar o logout'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class EventosViewSet(viewsets.ModelViewSet):
     queryset = Eventos.objects.all()
@@ -57,7 +78,7 @@ class EventosViewSet(viewsets.ModelViewSet):
 class AdministradorViewSet(viewsets.ModelViewSet):
     queryset = Administrador.objects.all()
     serializer_class = serializers.AdiministradorSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request):
         administrador = Administrador.objects.all()
@@ -70,6 +91,29 @@ class AdministradorViewSet(viewsets.ModelViewSet):
 class CarrinhoViewSet(viewsets.ModelViewSet):
     queryset = Carrinho.objects.all()
     serializer_class = serializers.CarrinhoSerializer
+    permission_classes = [IsAuthenticated]
+    def list(self, request):
+            carrinho = Carrinho.objects.filter(idUsuario=request.user)
+            serializer = serializers.CarrinhoSerializer(carrinho, many=True)
+            return Response(serializer.data)
+    def create(self, request):
+        serializer = serializers.CarrinhoSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(idUsuario=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    def destroy(self, request, pk=None):
+        carrinho = Carrinho.objects.get(id=pk)
+        carrinho.delete()
+        return Response({'mensagem': 'Produto removido do carrinho com sucesso'})
+    def update(self, request, pk=None):
+        carrinho = Carrinho.objects.get(id=pk)
+        serializer = serializers.CarrinhoSerializer(carrinho, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
 
 
 #TODO - GET: Mudar para uma consulta que é feita pelo id do usuário logado

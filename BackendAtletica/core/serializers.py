@@ -16,7 +16,23 @@ class VendaSerializer(serializers.ModelSerializer):
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ('__all__')
+        fields = ['username', 'email', 'password', 'nome', 'cpf', 'telefone', 'endereco', 'matricula']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = Usuario(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            nome=validated_data['nome'],
+            cpf=validated_data['cpf'],
+            telefone=validated_data['telefone'],
+            endereco=validated_data['endereco'],
+            matricula=validated_data['matricula']
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+        
 
 class EventosSerializer(serializers.ModelSerializer):
     class Meta:

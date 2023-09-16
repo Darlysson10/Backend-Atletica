@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework.decorators',
     'core',
 ]
 
@@ -71,7 +73,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'BackendAtletica.wsgi.application'
+AUTH_USER_MODEL = 'core.Usuario'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

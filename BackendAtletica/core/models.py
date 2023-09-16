@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class Produto(models.Model):
@@ -44,18 +45,19 @@ class Administrador(models.Model):
     def __str__(self):
         return self.nome
 
-class Usuario(models.Model):
+class Usuario(AbstractUser):
+    email = models.EmailField(unique=True)
     nome = models.CharField(max_length=100)
-    username = models.CharField(max_length=100)
+    #username = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11)
-    email = models.CharField(max_length=100)
+    #email = models.CharField(max_length=100)
     telefone = models.CharField(max_length=11)
     endereco = models.CharField(max_length=100)
-    senha = models.CharField(max_length=100)
+    password = models.CharField(max_length=100)
     matricula = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.nome
+        return self.username
 
 class Eventos(models.Model):
     nome = models.CharField(max_length=100)
