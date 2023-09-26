@@ -78,6 +78,7 @@ class Candidato (models.Model):
     curso = models.CharField(max_length=100)
     periodo = models.CharField(max_length=100)
     data = models.DateTimeField(auto_now_add=True)
+    diretoria_desejada = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nome

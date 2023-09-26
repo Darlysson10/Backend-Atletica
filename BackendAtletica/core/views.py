@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from .models import Produto, Venda, Usuario, Eventos, Administrador, Carrinho, Candidato
+from .models import Produto, Venda, Eventos, Administrador, Carrinho, Candidato
 from . import serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
@@ -22,8 +22,6 @@ class IsGuest(permissions.BasePermission):
         if request.method == 'POST' or request.user.is_staff:
             return True
         return  not request.user
-
-#criar uma função post de onde se cria um serializer e esse serializer é jogado numa função de tratamento dos dados recebidos
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
     serializer_class = serializers.ProdutoSerializer
@@ -78,14 +76,22 @@ class EventosViewSet(viewsets.ModelViewSet):
 class AdministradorViewSet(viewsets.ModelViewSet):
     queryset = Administrador.objects.all()
     serializer_class = serializers.AdiministradorSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
 
     def list(self, request):
         administrador = Administrador.objects.all()
         if request.user.is_staff:
             serializer = serializers.AdministradorAsAdminListSerializer(administrador, many=True)
+            return Response(serializer.data)
         else:
-            serializer = serializers.AdministradorListSerializer(administrador, many=True)
+            return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
+        
+class PublicAdministradorViewSet(viewsets.ModelViewSet):
+    queryset = Administrador.objects.all()
+    serializer_class = serializers.AdministradorListSerializer
+    def list(self, request):
+        administrador = Administrador.objects.all()
+        serializer = serializers.AdministradorListSerializer(administrador, many=True)
         return Response(serializer.data)
 
 class CarrinhoViewSet(viewsets.ModelViewSet):
