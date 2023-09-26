@@ -51,3 +51,17 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+### Endpoints
+```bash
+/produtos/
+/vendas/
+/eventos/
+/administradores/ # Somente super usuário
+/membros/
+/carrinho/
+/bancoespera/
+/inscricao/
+/register/
+/login/
+/logout/
+```
