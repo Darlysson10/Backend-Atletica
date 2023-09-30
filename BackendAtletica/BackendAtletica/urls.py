@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from core import views
-from core.views import ProdutoViewSet, VendaViewSet, EventosViewSet, CarrinhoViewSet, AdministradorViewSet, CandidatoViewSet, PublicAdministradorViewSet
+from core.views import ProdutoViewSet, VendaViewSet, EventosViewSet, CarrinhoViewSet, CandidatoViewSet
 from rest_framework import routers
 
 

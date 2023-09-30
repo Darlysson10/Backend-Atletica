@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Produto, Venda, Usuario, Eventos, Administrador, Carrinho, Candidato
+from .models import Produto, Venda, Usuario, Eventos, Carrinho, Candidato
 # Serializers define the API representation.
 class ProdutoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,6 +32,16 @@ class UsuarioSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+class UsuarioAdminPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['nome', 'diretoria']
+
+class UsuarioAsAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['username', 'email', 'nome', 'cpf', 'telefone', 'endereco', 'matricula', 'diretoria']
         
 
 class EventosSerializer(serializers.ModelSerializer):
@@ -39,20 +49,6 @@ class EventosSerializer(serializers.ModelSerializer):
         model = Eventos
         fields = ('__all__')
 
-class AdiministradorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Administrador
-        fields = ('__all__')
-
-class AdministradorListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Administrador
-        fields = ('nome', 'diretoria')
-
-class AdministradorAsAdminListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Administrador
-        fields = ('nome', 'username', 'cpf', 'email', 'telefone', 'endereco', 'matricula', 'diretoria')
 
 class CarrinhoSerializer(serializers.ModelSerializer):
     class Meta:

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from .models import Produto, Venda, Eventos, Administrador, Carrinho, Candidato
+from .models import Produto, Venda, Eventos, Carrinho, Candidato, Usuario
 from . import serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import IsAuthenticated
+from .validators import evento_validator
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -73,26 +74,68 @@ class EventosViewSet(viewsets.ModelViewSet):
     queryset = Eventos.objects.all()
     serializer_class = serializers.EventosSerializer
 
-class AdministradorViewSet(viewsets.ModelViewSet):
-    queryset = Administrador.objects.all()
-    serializer_class = serializers.AdiministradorSerializer
-    permission_classes = [IsAdminOrReadOnly]
-
+    def create(self, request):
+        if not request.user.is_staff:
+            return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
+        serializer = serializers.EventosSerializer(data=request.data)
+        validacao_resposta, codigo_validacao = evento_validator.Evento_Validator.validate(self, request)
+        if serializer.is_valid() and codigo_validacao == 200:
+            serializer.save()
+            return Response(serializer.data, validacao_resposta, status=status.HTTP_201_CREATED)
+        elif codigo_validacao == 400:
+            return validacao_resposta
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     def list(self, request):
-        administrador = Administrador.objects.all()
+        eventos = Eventos.objects.all()
+        serializer = serializers.EventosSerializer(eventos, many=True)
+        return Response(serializer.data)
+    def get_by_id(self, request, pk):
+        evento = Eventos.objects.get(id=pk)
+        serializer = serializers.EventosSerializer(evento)
+        return Response(serializer.data)
+    def destroy(self, request, pk):
+        if not request.user.is_staff:
+            return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
+        evento = Eventos.objects.get(id=pk)
+        evento.delete()
+        return Response({'mensagem': 'Evento deletado com sucesso'})
+
+class AdministradorViewSet(viewsets.ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = serializers.UsuarioSerializer
+    def list(self, request):
         if request.user.is_staff:
-            serializer = serializers.AdministradorAsAdminListSerializer(administrador, many=True)
+            administradores = Usuario.objects.filter(is_staff=True)
+            serializer = serializers.UsuarioSerializer(administradores, many=True)
             return Response(serializer.data)
         else:
             return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
-        
-class PublicAdministradorViewSet(viewsets.ModelViewSet):
-    queryset = Administrador.objects.all()
-    serializer_class = serializers.AdministradorListSerializer
+    def create(self, request):
+        return Response({'mensagem': 'Não é possível criar um administrador por aqui'})
+
+class AdministradorViewSet(viewsets.ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = serializers.UsuarioAsAdminSerializer
     def list(self, request):
-        administrador = Administrador.objects.all()
-        serializer = serializers.AdministradorListSerializer(administrador, many=True)
+        if request.user.is_staff:
+            membros = Usuario.objects.filter(is_staff=True)
+            serializer = serializers.UsuarioAsAdminSerializer(membros, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
+    #bloquear metodo post
+    def create(self, request):
+        return Response({'mensagem': 'Não é possível criar um administrador por aqui'})
+
+class PublicAdministradorViewSet(viewsets.ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = serializers.UsuarioAdminPublicSerializer
+    def list(self, request):
+        membros = Usuario.objects.filter(is_staff=True)
+        serializer = serializers.UsuarioAdminPublicSerializer(membros, many=True)
         return Response(serializer.data)
+    
+
 
 class CarrinhoViewSet(viewsets.ModelViewSet):
     queryset = Carrinho.objects.all()

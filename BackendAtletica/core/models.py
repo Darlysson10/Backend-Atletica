@@ -20,7 +20,6 @@ class Venda(models.Model):
     idVenda = models.IntegerField()
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     dataVenda = models.DateTimeField(auto_now_add=True)
-    idVendedor = models.ForeignKey('Administrador', on_delete=models.CASCADE)
     idComprador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
     metodoPagamento = models.CharField(max_length=100)
     qtdVendido = models.IntegerField()
@@ -28,22 +27,6 @@ class Venda(models.Model):
 
     def __str__(self):
         return self.produtos
-
-#classe carrinho, não precisa de persistência de dados, será armazenado na sessão
-
-class Administrador(models.Model):
-    nome = models.CharField(max_length=100)
-    username = models.CharField(max_length=100)
-    cpf = models.CharField(max_length=11)
-    email = models.CharField(max_length=100)
-    telefone = models.CharField(max_length=11)
-    endereco = models.CharField(max_length=100)
-    senha = models.CharField(max_length=100)
-    matricula = models.CharField(max_length=100)
-    diretoria = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nome
 
 class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
@@ -53,6 +36,7 @@ class Usuario(AbstractUser):
     endereco = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
     matricula = models.CharField(max_length=100)
+    diretoria = models.CharField(max_length=100, null=True)
 
     def __str__(self):
         return self.username
@@ -60,7 +44,8 @@ class Usuario(AbstractUser):
 class Eventos(models.Model):
     nome = models.CharField(max_length=100)
     descricao = models.TextField()
-    data = models.DateTimeField(auto_now_add=True)
+    data = models.DateField()
+    hora = models.TimeField()
     local = models.CharField(max_length=100)
 
     def __str__(self):
