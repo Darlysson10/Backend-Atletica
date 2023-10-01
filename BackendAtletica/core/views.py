@@ -39,8 +39,9 @@ class VendaViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.VendaSerializer
 
 @api_view(['POST'])
+@permission_classes([IsGuest])
 def register(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and not request.user.is_staff:
         serializer = serializers.UsuarioSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -48,6 +49,7 @@ def register(request):
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+@permission_classes([IsGuest])
 def login(request):
     if request.method == 'POST':
         username = request.data['username']
