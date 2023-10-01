@@ -154,7 +154,7 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     def destroy(self, request, pk=None):
-        carrinho = Carrinho.objects.get(id=pk)
+        carrinho = Carrinho.objects.get(id=pk, idUsuario=request.user)
         carrinho.delete()
         return Response({'mensagem': 'Produto removido do carrinho com sucesso'})
     def update(self, request, pk=None):
