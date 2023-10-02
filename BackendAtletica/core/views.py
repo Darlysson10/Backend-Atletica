@@ -23,6 +23,7 @@ class IsGuest(permissions.BasePermission):
         if request.method == 'POST' or request.user.is_staff:
             return True
         return  not request.user
+@permission_classes([IsAdminOrReadOnly])
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
     serializer_class = serializers.ProdutoSerializer
@@ -33,10 +34,24 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except:
             return Response({'mensagem': 'Produto não encontrado'})
+    def create (self, request):
+        serializer = serializers.ProdutoSerializer(data=request.data)
+        if serializer.is_valid() and request.user.is_staff:
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         
+@permission_classes([IsAdminOrReadOnly])
 class VendaViewSet(viewsets.ModelViewSet):
     queryset = Venda.objects.all()
     serializer_class = serializers.VendaSerializer
+    def list(self, request):
+        if request.user.is_staff:
+            vendas = Venda.objects.all()
+            serializer = serializers.VendaSerializer(vendas, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
 
 @api_view(['POST'])
 @permission_classes([IsGuest])
@@ -71,11 +86,10 @@ def logout(request):
         except (AttributeError, ObjectDoesNotExist):
             return Response({'error': 'Não foi possível realizar o logout'}, status=status.HTTP_400_BAD_REQUEST)
 
-
+@permission_classes([IsAdminOrReadOnly])
 class EventosViewSet(viewsets.ModelViewSet):
     queryset = Eventos.objects.all()
     serializer_class = serializers.EventosSerializer
-
     def create(self, request):
         if not request.user.is_staff:
             return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
@@ -102,47 +116,35 @@ class EventosViewSet(viewsets.ModelViewSet):
         evento.delete()
         return Response({'mensagem': 'Evento deletado com sucesso'})
 
+@permission_classes([IsAdminOrReadOnly])
 class AdministradorViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = serializers.UsuarioSerializer
     def list(self, request):
         if request.user.is_staff:
             administradores = Usuario.objects.filter(is_staff=True)
-            serializer = serializers.UsuarioSerializer(administradores, many=True)
+            serializer = serializers.UsuarioAsAdminSerializer(administradores, many=True)
             return Response(serializer.data)
         else:
             return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
     def create(self, request):
         return Response({'mensagem': 'Não é possível criar um administrador por aqui'})
 
-class AdministradorViewSet(viewsets.ModelViewSet):
-    queryset = Usuario.objects.all()
-    serializer_class = serializers.UsuarioAsAdminSerializer
-    def list(self, request):
-        if request.user.is_staff:
-            membros = Usuario.objects.filter(is_staff=True)
-            serializer = serializers.UsuarioAsAdminSerializer(membros, many=True)
-            return Response(serializer.data)
-        else:
-            return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
-    #bloquear metodo post
-    def create(self, request):
-        return Response({'mensagem': 'Não é possível criar um administrador por aqui'})
-
+@permission_classes([IsAdminOrReadOnly])
 class PublicAdministradorViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = serializers.UsuarioAdminPublicSerializer
     def list(self, request):
         membros = Usuario.objects.filter(is_staff=True)
+        print(membros)
         serializer = serializers.UsuarioAdminPublicSerializer(membros, many=True)
         return Response(serializer.data)
     
 
-
+@permission_classes([IsAuthenticated])
 class CarrinhoViewSet(viewsets.ModelViewSet):
     queryset = Carrinho.objects.all()
     serializer_class = serializers.CarrinhoSerializer
-    permission_classes = [IsAuthenticated]
     def list(self, request):
             carrinho = Carrinho.objects.filter(idUsuario=request.user)
             serializer = serializers.CarrinhoSerializer(carrinho, many=True)
@@ -164,19 +166,24 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
+@permission_classes([IsGuest])
 class CandidatoViewSet(viewsets.ModelViewSet):
     queryset = Candidato.objects.all()
     serializer_class = serializers.CandidatoSerializer
     
     def create(self, request):
         serializer = serializers.CandidatoSerializer(data=request.data)
-        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    def list(self, request, *args, **kwargs):
+        return Response({'mensagem': 'Não é possível listar os candidatos por aqui'})
     
+@permission_classes([IsAdminOrReadOnly])
+class BancoEsperaViewSet(viewsets.ModelViewSet):
+    queryset = Candidato.objects.all()
+    serializer_class = serializers.CandidatoSerializer
     def list(self, request):
         if request.user.is_staff:
             candidato = Candidato.objects.all()
@@ -184,4 +191,5 @@ class CandidatoViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
-#TODO - GET: Mudar para uma consulta que é feita pelo id do usuário logado
+    def create(self, request):
+        return Response({'mensagem': 'Não é possível criar um candidato por aqui'})
