@@ -97,9 +97,9 @@ class EventosViewSet(viewsets.ModelViewSet):
         validacao_resposta, codigo_validacao = evento_validator.Evento_Validator.validate(self, request)
         if serializer.is_valid() and codigo_validacao == 200:
             serializer.save()
-            return Response(serializer.data, validacao_resposta, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif codigo_validacao == 400:
-            return validacao_resposta
+            return Response(validacao_resposta, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     def list(self, request):
         eventos = Eventos.objects.all()
@@ -136,7 +136,6 @@ class PublicAdministradorViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UsuarioAdminPublicSerializer
     def list(self, request):
         membros = Usuario.objects.filter(is_staff=True)
-        print(membros)
         serializer = serializers.UsuarioAdminPublicSerializer(membros, many=True)
         return Response(serializer.data)
     
