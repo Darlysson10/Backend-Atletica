@@ -11,6 +11,9 @@ from rest_framework.authtoken.models import Token
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.permissions import IsAuthenticated
 from .validators import evento_validator
+from django.core.mail import send_mail
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.admin.views.decorators import staff_member_required
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -23,6 +26,7 @@ class IsGuest(permissions.BasePermission):
         if request.method == 'POST' or request.user.is_staff:
             return True
         return  not request.user
+    
 @permission_classes([IsAdminOrReadOnly])
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
@@ -165,6 +169,7 @@ class CarrinhoViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
 @permission_classes([IsGuest])
 class CandidatoViewSet(viewsets.ModelViewSet):
     queryset = Candidato.objects.all()
@@ -174,8 +179,10 @@ class CandidatoViewSet(viewsets.ModelViewSet):
         serializer = serializers.CandidatoSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            send_mail('Inscrição no Octacore', 'Olá, ' + request.data['nome'] + '! Sua inscrição no Octacore foi realizada com sucesso. Aguarde o resultado final.', 'ufaloctacore@gmail.com', [request.data['email']])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
     def list(self, request, *args, **kwargs):
         return Response({'mensagem': 'Não é possível listar os candidatos por aqui'})
     
@@ -192,3 +199,18 @@ class BancoEsperaViewSet(viewsets.ModelViewSet):
             return Response({'mensagem': 'Você não tem permissão para acessar essa página'})
     def create(self, request):
         return Response({'mensagem': 'Não é possível criar um candidato por aqui'})
+
+@staff_member_required
+@csrf_exempt
+def enviar_email(request):
+    if request.method == 'POST':
+        try:
+            assunto = request.POST['assunto']
+            mensagem = request.POST['mensagem']
+            remetente = 'ufaloctacore@gmail.com'
+            destinatario = request.POST['destinatario']
+            send_mail(assunto, mensagem, remetente, [destinatario])
+
+            return JsonResponse({'mensagem': 'E-mail enviado com sucesso'})
+        except:
+            return JsonResponse({'error': 'Ocorreu um erro ao enviar o e-mail. Por favor, tente novamente mais tarde.'})
